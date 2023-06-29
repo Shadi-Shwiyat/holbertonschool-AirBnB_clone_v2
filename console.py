@@ -117,43 +117,37 @@ class HBNBCommand(cmd.Cmd):
         pass
     # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     def do_create(self, line):
-    """Usage: create <Class name> <param 1> <param 2> <param 3>..."""
-
-    # Check if the class name is missing
-    if not line:
-        print("** class name missing **")
-        return
-
-    args = line.split()  # Split the arguments into a list
-    kwargs = {}  # Initialize an empty dictionary to store keyword arguments
-
-    # Iterate through the arguments starting from index 1
-    for param in range(1, len(args)):
-        ky, vl = args[param].split("=")  # Split each argument into key and value
-
-        if vl[0] == '"':
-            # If the value starts and ends with double quotes, remove the quotes
-            vl = vl.replace('_', ' ').strip('"')
+        """Usage: create <Class name> <param 1> <param 2> <param 3>..."""
+        # Check if the class name is valid
+        if not line:
+            print("** class name missing **")
+            return
+        args = line.split() # Split the line into a list of arguments
+        kwargs = {} # Initialize a dictionary for kwargs to be stored in
+        # Iterate through the arguments starting from index 1
+        for param in range(1, len(args)):
+            ky, vl = args[param].split("=") # Split into a key and value
+            if vl[0] == '"':
+                # If the valuse starts and ends with quotes, remove them
+                vl = vl.replace('_', ' ').strip('"')
+            else:
+                try:
+                    # If the value is not a string, evaluate it
+                    vl = eval(vl)
+                except (SyntaxError, NameError):
+                    # If evaluation fails, continue to next argument
+                    continue
+            kwargs[ky] = vl # Store the key value pair in the dictionary
+        # Check if any kwargs were passed
+        if len(kwargs) == 0:
+            # If not, create an object with no kwargs
+            obj = eval(args[0])()
         else:
-            try:
-                # If the value is not a string, evaluate it as a Python expression
-                vl = eval(vl)
-            except (SyntaxError, NameError):
-                # If evaluating the value fails, continue to the next argument
-                continue
+            # If keyword arguments were passed, create an instance with them
+            obj = eval(args[0])(**kwargs)
+        print(obj.id) # Print eh id attribute of the object
+        obj.save() # Save the object to the file storage
 
-        kwargs[ky] = vl  # Store the key-value pair in the kwargs dictionary
-
-    # Check if any keyword arguments were provided
-    if len(kwargs) == 0:
-        # If no keyword arguments, create an instance of the class with no arguments
-        obj = eval(args[0])()
-    else:
-        # If keyword arguments are present, create an instance of the class with kwargs
-        obj = eval(args[0])(**kwargs)
-
-    print(obj.id)  # Print the 'id' attribute of the created object
-    obj.save()  # Save the object (implementation not shown)
 
     def help_create(self):
         """ Help information for the create method """
