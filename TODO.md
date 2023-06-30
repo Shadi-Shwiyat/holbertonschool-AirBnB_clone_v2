@@ -1,15 +1,32 @@
 List of things needed to be done.
 
 ## TODO
-###Unit tests
-need to have unit tests for console
-Then DBStorage needs tests under engine
-DBstorage needs to be tested in console basemodel, file storage and tests models
+### Task 0
+Complete
 
+### Task 1 Unit tests
+Still having issues with Tests BaseModel, Models, Filestorage - All these due to FileStorage
+also having issues with Test BaseModel, Models - for DBStorage
 
-taking a break
-was able to complete task 3 and 4
+### Task 2
+Having issues with Test create State. Last 5 checks im not getting yet due to filestorage issues
 
-task 1 and 2 are still incomplete need to work on them . having issues with testing and console.py
+### Task 3
+Complete
 
-need to add testing for delete method
+### Task 4
+Complete
+
+### Task 5 
+Complete 
+
+### Task 6
+Current Focus is this task
+
+### Task 7
+
+### Task 8
+
+### Task 9
+
+### Task 10
