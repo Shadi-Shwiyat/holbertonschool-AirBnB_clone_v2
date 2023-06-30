@@ -3,7 +3,6 @@
 import cmd
 import sys
 from models.base_model import BaseModel
-from models.__init__ import storage
 from models.user import User
 from models.place import Place
 from models.state import State
@@ -33,7 +32,7 @@ class HBNBCommand(cmd.Cmd):
     def preloop(self):
         """Prints if isatty is false"""
         if not sys.__stdin__.isatty():
-            print('(hbnb)')
+            print('(hbnb) ', end="")
 
     def precmd(self, line):
         """Reformat command line for advanced command syntax.
@@ -73,7 +72,8 @@ class HBNBCommand(cmd.Cmd):
                 pline = pline[2].strip()  # pline is now str
                 if pline:
                     # check for *args or **kwargs
-                    if pline[0] == '{' and pline[-1] == '}'\
+                    # added space around second curly brace in line below
+                    if pline[0] == '{' and pline[-1] == '}' \
                             and type(eval(pline)) is dict:
                         _args = pline
                     else:
@@ -115,29 +115,33 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
-        cls = args.partition(' ')[0]
-        if not cls:
+        from models import storage
+        list_args = args.split()
+        if not args:
             print("** class name missing **")
             return
-        elif cls not in HBNBCommand.classes:
+        elif list_args[0] not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        param_string = args.partition(' ')[2]
-        param_dict = {}
-        while param_string:
-            param_strings = param_string.partition(' ')
-            curr_param = param_strings[0]
-            param_data = curr_param.partition('=')
-            try:
-                val = HBNBCommand.get_value(param_data[2])
-                param_dict[param_data[0]] = val
-            except TypeError:
-                pass
-            param_string = param_strings[2]
-        new_instance = HBNBCommand.classes[cls](**param_dict)
+        new_instance = HBNBCommand.classes[list_args[0]]()
+        for arg in range(1, len(list_args)):
+            key_value_pair = list_args[arg].partition("=")
+            key_name = key_value_pair[0]
+            key_value = key_value_pair[2]
+            if '\"' in key_value:
+                key_value = key_value[1:-1]
+                key_value = key_value.replace("_", " ")
+            elif "." in key_value:
+                key_value = float(key_value)
+            else:
+                key_value = int(key_value)
+
+            if hasattr(new_instance, key_name):
+                setattr(new_instance, key_name, key_value)
+
+        storage.new(new_instance)
         storage.save()
         print(new_instance.id)
-        new_instance.save()
 
     def help_create(self):
         """ Help information for the create method """
@@ -146,6 +150,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_show(self, args):
         """ Method to show an individual object """
+        from models import storage
         new = args.partition(" ")
         c_name = new[0]
         c_id = new[2]
@@ -168,7 +173,7 @@ class HBNBCommand(cmd.Cmd):
 
         key = c_name + "." + c_id
         try:
-            print(storage.all()[key])
+            print(storage._FileStorage__objects[key])
         except KeyError:
             print("** no instance found **")
 
@@ -179,28 +184,29 @@ class HBNBCommand(cmd.Cmd):
 
     def do_destroy(self, args):
         """ Destroys a specified object """
-        arg_data = args.partition(" ")
-        cls_name = arg_data[0]
-        obj_id = arg_data[2]
-        if obj_id and ' ' in obj_id:
-            obj_id = obj_id.partition(' ')[0]
+        from models import storage
+        new = args.partition(" ")
+        c_name = new[0]
+        c_id = new[2]
+        if c_id and ' ' in c_id:
+            c_id = c_id.partition(' ')[0]
 
-        if not cls_name:
+        if not c_name:
             print("** class name missing **")
             return
 
-        if cls_name not in HBNBCommand.classes:
+        if c_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
 
-        if not obj_id:
+        if not c_id:
             print("** instance id missing **")
             return
 
-        key = cls_name + "." + obj_id
+        key = c_name + "." + c_id
 
         try:
-            storage.delete(storage.all()[key])
+            del(storage.all()[key])
             storage.save()
         except KeyError:
             print("** no instance found **")
@@ -212,18 +218,20 @@ class HBNBCommand(cmd.Cmd):
 
     def do_all(self, args):
         """ Shows all objects, or all objects of a class"""
+        from models import storage
         print_list = []
+        objects = storage.all()
 
         if args:
             args = args.split(' ')[0]  # remove possible trailing args
             if args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
-            for k, v in storage.all(HBNBCommand.classes[args]).items():
+            for k, v in objects.items():
                 if k.split('.')[0] == args:
                     print_list.append(str(v))
         else:
-            for k, v in storage.all().items():
+            for k, v in objects.items():
                 print_list.append(str(v))
 
         print(print_list)
@@ -235,6 +243,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_count(self, args):
         """Count current number of class instances"""
+        from models import storage
         count = 0
         for k, v in storage.all().items():
             if args == k.split('.')[0]:
@@ -247,6 +256,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_update(self, args):
         """ Updates a certain object with new info """
+        from models import storage
         c_name = c_id = att_name = att_val = kwargs = ''
 
         # isolate cls from id/args, ex: (<cls>, delim, <id/args>)
@@ -332,22 +342,7 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
-
-    def get_value(input_str):
-        """attempts to turn a string to number"""
-        num = None
-        try:
-            num = float(input_str)          # if float fails num will be None
-            res = int(input_str)
-        except ValueError:
-            res = num or str(input_str)     # if int failed, num won't be None,
-        if type(res) is str:
-            if (res[0] != res[-1] or res[0] != '"'):
-                raise TypeError('Not Implmented')
-            res = res.replace("_", ' ')
-            res = res.strip('"')
-
-        return res
+# added second blank line here to satisfy pycodestyle
 
 
 if __name__ == "__main__":
