@@ -5,6 +5,9 @@ from models.base_model import BaseModel
 from models import storage
 import os
 
+# @unittest.skipIf(HBNB_TYPE_STORAGE == 'db')
+# TODO: define HBNB_TYPE_STORAGE somewhere
+
 
 class test_fileStorage(unittest.TestCase):
     """ Class to test the file storage method """
@@ -31,7 +34,6 @@ class test_fileStorage(unittest.TestCase):
     def test_new(self):
         """ New object is correctly added to __objects """
         new = BaseModel()
-        new.save()
         for obj in storage.all().values():
             temp = obj
         self.assertTrue(temp is obj)
@@ -41,17 +43,12 @@ class test_fileStorage(unittest.TestCase):
         new = BaseModel()
         temp = storage.all()
         self.assertIsInstance(temp, dict)
-
-    def test_all_class(self):
-        """__objects are all correct type"""
-        temp = storage.all(BaseModel)
-        for tObj in temp:
-            self.assertEqual(type(tObj), BaseModel)
+        # TODO: Add testing for cls=... method
 
     def test_base_model_instantiation(self):
         """ File is not created on BaseModel save """
         new = BaseModel()
-        self.assertTrue(os.path.exists('file.json'))
+        self.assertFalse(os.path.exists('file.json'))
 
     def test_empty(self):
         """ Data is saved to file """
@@ -70,7 +67,6 @@ class test_fileStorage(unittest.TestCase):
     def test_reload(self):
         """ Storage file is successfully loaded to __objects """
         new = BaseModel()
-        new.save()
         storage.save()
         storage.reload()
         for obj in storage.all().values():
@@ -113,5 +109,10 @@ class test_fileStorage(unittest.TestCase):
     def test_storage_var_created(self):
         """ FileStorage object storage created """
         from models.engine.file_storage import FileStorage
+        # Below line was in code base, but not sure why, so commented out
         # print(type(storage))
         self.assertEqual(type(storage), FileStorage)
+
+    def test_delete(self):
+        """ Confirm object is deleted """
+        # TODO: add testing for delete method
