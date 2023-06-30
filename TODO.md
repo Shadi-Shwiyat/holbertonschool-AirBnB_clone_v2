@@ -21,12 +21,14 @@ Complete
 Complete 
 
 ### Task 6
-Current Focus is this task, current issue is table creation when select from states table
+Current Focus is this task, was able to get table created now. 
+I am able to create the state table, but I am having issues with the city table. 
 
 ### Task 7
-
+complete
 ### Task 8
-
+half complete, will look at it again saturday
 ### Task 9
-
+complete
 ### Task 10
+complete
