@@ -115,4 +115,3 @@ class test_fileStorage(unittest.TestCase):
 
     def test_delete(self):
         """ Confirm object is deleted """
-        # TODO: add testing for delete method
