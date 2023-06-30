@@ -21,7 +21,7 @@ Complete
 Complete 
 
 ### Task 6
-Current Focus is this task
+Current Focus is this task, current issue is table creation when select from states table
 
 ### Task 7
 
