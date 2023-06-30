@@ -2,7 +2,6 @@
 """ Console Module """
 import cmd
 import sys
-import shlex  # for splitting lines
 from models.base_model import BaseModel
 from models.__init__ import storage
 from models.user import User
@@ -38,6 +37,7 @@ class HBNBCommand(cmd.Cmd):
 
     def precmd(self, line):
         """Reformat command line for advanced command syntax.
+
         Usage: <class name>.<command>([<id> [<*args> or <**kwargs>]])
         (Brackets denote optional fields in usage example.)
         """
@@ -65,12 +65,9 @@ class HBNBCommand(cmd.Cmd):
                 pline = pline.partition(', ')  # pline convert to tuple
 
                 # isolate _id, stripping quotes
-                if pline[0]:
-                    _id = pline[0].replace('\"', '')
-                else:
-                    _id = None
-                    # possible bug here: fixed?
-                    # empty quotes register as empty _id when replaced
+                _id = pline[0].replace('\"', '')
+                # possible bug here:
+                # empty quotes register as empty _id when replaced
 
                 # if arguments exist beyond _id
                 pline = pline[2].strip()  # pline is now str
@@ -115,39 +112,32 @@ class HBNBCommand(cmd.Cmd):
     def emptyline(self):
         """ Overrides the emptyline method of CMD """
         pass
-    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    def do_create(self, line):
-        """Usage: create <Class name> <param 1> <param 2> <param 3>..."""
-        # Check if the class name is valid
-        if not line:
+
+    def do_create(self, args):
+        """ Create an object of any class"""
+        cls = args.partition(' ')[0]
+        if not cls:
             print("** class name missing **")
             return
-        args = line.split() # Split the line into a list of arguments
-        kwargs = {} # Initialize a dictionary for kwargs to be stored in
-        # Iterate through the arguments starting from index 1
-        for param in range(1, len(args)):
-            ky, vl = args[param].split("=") # Split into a key and value
-            if vl[0] == '"':
-                # If the valuse starts and ends with quotes, remove them
-                vl = vl.replace('_', ' ').strip('"')
-            else:
-                try:
-                    # If the value is not a string, evaluate it
-                    vl = eval(vl)
-                except (SyntaxError, NameError):
-                    # If evaluation fails, continue to next argument
-                    continue
-            kwargs[ky] = vl # Store the key value pair in the dictionary
-        # Check if any kwargs were passed
-        if len(kwargs) == 0:
-            # If not, create an object with no kwargs
-            obj = eval(args[0])()
-        else:
-            # If keyword arguments were passed, create an instance with them
-            obj = eval(args[0])(**kwargs)
-        print(obj.id) # Print eh id attribute of the object
-        obj.save() # Save the object to the file storage
-
+        elif cls not in HBNBCommand.classes:
+            print("** class doesn't exist **")
+            return
+        param_string = args.partition(' ')[2]
+        param_dict = {}
+        while param_string:
+            param_strings = param_string.partition(' ')
+            curr_param = param_strings[0]
+            param_data = curr_param.partition('=')
+            try:
+                val = HBNBCommand.get_value(param_data[2])
+                param_dict[param_data[0]] = val
+            except TypeError:
+                pass
+            param_string = param_strings[2]
+        new_instance = HBNBCommand.classes[cls](**param_dict)
+        storage.save()
+        print(new_instance.id)
+        new_instance.save()
 
     def help_create(self):
         """ Help information for the create method """
@@ -178,7 +168,7 @@ class HBNBCommand(cmd.Cmd):
 
         key = c_name + "." + c_id
         try:
-            print(storage._FileStorage__objects[key])
+            print(storage.all()[key])
         except KeyError:
             print("** no instance found **")
 
@@ -220,13 +210,23 @@ class HBNBCommand(cmd.Cmd):
         print("Destroys an individual instance of a class")
         print("[Usage]: destroy <className> <objectId>\n")
 
-    def do_all(self, line):
+    def do_all(self, args):
         """ Shows all objects, or all objects of a class"""
-        if not line:
-            objs = storage.all()
+        print_list = []
+
+        if args:
+            args = args.split(' ')[0]  # remove possible trailing args
+            if args not in HBNBCommand.classes:
+                print("** class doesn't exist **")
+                return
+            for k, v in storage.all(HBNBCommand.classes[args]).items():
+                if k.split('.')[0] == args:
+                    print_list.append(str(v))
         else:
-            objs = storage.all(eval(line))
-        print([objs[key].__str__() for key in objs])
+            for k, v in storage.all().items():
+                print_list.append(str(v))
+
+        print(print_list)
 
     def help_all(self):
         """ Help information for the all command """
@@ -236,7 +236,7 @@ class HBNBCommand(cmd.Cmd):
     def do_count(self, args):
         """Count current number of class instances"""
         count = 0
-        for k, v in storage._FileStorage__objects.items():
+        for k, v in storage.all().items():
             if args == k.split('.')[0]:
                 count += 1
         print(count)
@@ -340,7 +340,7 @@ class HBNBCommand(cmd.Cmd):
             num = float(input_str)          # if float fails num will be None
             res = int(input_str)
         except ValueError:
-            res = num or str(input_str)   # if int failed, num won't be None,
+            res = num or str(input_str)     # if int failed, num won't be None,
         if type(res) is str:
             if (res[0] != res[-1] or res[0] != '"'):
                 raise TypeError('Not Implmented')
