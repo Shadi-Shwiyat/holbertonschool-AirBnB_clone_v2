@@ -23,6 +23,7 @@ Complete
 ### Task 6
 Current Focus is this task, was able to get table created now. 
 I am able to create the state table, but I am having issues with the city table. 
+Will continue to work on this on Saturday.
 
 ### Task 7
 complete
