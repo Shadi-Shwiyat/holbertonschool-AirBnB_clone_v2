@@ -36,7 +36,6 @@ class BaseModel:
                 self.created_at = datetime.now()
                 self.updated_at = self.created_at
 
-
     def __str__(self):
         """Returns a string representation of the instance"""
         cls = (str(type(self)).split('.')[-1]).split('\'')[0]
