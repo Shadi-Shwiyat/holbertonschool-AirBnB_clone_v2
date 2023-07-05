@@ -9,21 +9,12 @@ class FileStorage:
     __objects = {}
 
     def all(self, cls=None):
-        """
-        If cls=None, returns a dictionary of models
-        currently in storage, else returns a dictionary
-        of models with class=cls
-        """
-        # print(FileStorage.__objects)
-        if cls is None:
-            return FileStorage.__objects
-
-        cls_objects = {}
-        for value in FileStorage.__objects.values():
-            if type(value) == cls:
-                cls_objects.update({value.to_dict()['__class__'] +
-                                    '.' + value.id: value})
-        return cls_objects
+        """Returns a dictionary of models currently in storage"""
+        if cls is not None:
+            return {key: self.__objects[key]
+                    for key in self.__objects
+                    if self.__objects[key].__class__ == cls}
+        return FileStorage.__objects
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
@@ -63,16 +54,13 @@ class FileStorage:
             pass
 
     def delete(self, obj=None):
-        """deletes an object from __objects"""
-        if obj is None:
+        """Deletes obj from __objects if it's inside"""
+        if obj in self.__objects.values():
+            key = obj.__class__.__name__ + "." + obj.id
+            self.__objects.pop(key, None)
+        elif obj is None:
             return
-        for key, value in dict(FileStorage.__objects).items():
-            if value == obj:
-                del FileStorage.__objects[key]
 
-    def close(self):  # p1170t7
-        """
-        Calls the reload() method for de-
-        serializing the JSON file to objects.
-        """
+    def close(self):
+        """call reload() method for deserializing the JSON file to objects"""
         self.reload()
