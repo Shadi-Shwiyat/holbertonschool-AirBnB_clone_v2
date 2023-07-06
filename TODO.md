@@ -9,7 +9,7 @@ Still having issues with Tests BaseModel, Models, Filestorage - All these due to
 also having issues with Test BaseModel, Models - for DBStorage
 
 ### Task 2
-Having issues with Test create State. Last 5 checks im not getting yet due to filestorage issues
+Having issues with Test create State. Last 5 checks im not getting yet due to filestorage issues in console.py
 
 ### Task 3
 Complete
@@ -23,12 +23,13 @@ Complete
 ### Task 6
 Current Focus is this task, was able to get table created now. 
 I am able to create the state table, but I am having issues with the city table. 
-Will continue to work on this on Saturday.
+This is also from task 2, I am not able to  test create State name.
 
 ### Task 7
 complete
 ### Task 8
-half complete, will look at it again saturday
+half complete. having issue with create Place with city_id and user_id exisiting
+via console. Not sure how to fix it just yet. 
 ### Task 9
 complete
 ### Task 10
