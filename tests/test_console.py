@@ -1,116 +1,99 @@
 #!/usr/bin/python3
 """ """
-from console import HBNBCommand
+from models.base_model import BaseModel
 import unittest
+import datetime
+from uuid import UUID
+import json
+import os
 
 
-class test_console(unittest.TestCase):
+class test_basemodel(unittest.TestCase):
     """ """
 
     def __init__(self, *args, **kwargs):
         """ """
         super().__init__(*args, **kwargs)
-        self.name = 'HBNBCommand'
-        self.value = HBNBCommand
+        self.name = 'BaseModel'
+        self.value = BaseModel
 
     def setUp(self):
         """ """
         pass
 
     def tearDown(self):
-        """ """
-        pass
+        try:
+            os.remove('file.json')
+        except FileNotFoundError:
+            pass
 
     def test_default(self):
         """ """
         i = self.value()
         self.assertEqual(type(i), self.value)
 
-    def test_emptyline(self):
+    def test_kwargs(self):
         """ """
         i = self.value()
-        self.assertEqual(i.emptyline(), None)
+        copy = i.to_dict()
+        new = BaseModel(**copy)
+        self.assertFalse(new is i)
 
-    def test_do_quit(self):
+    def test_kwargs_int(self):
         """ """
         i = self.value()
-        with self.assertRaises(SystemExit):
-            i.do_quit(None)
-
-    def test_do_EOF(self):
-        """ """
-        i = self.value()
-        with self.assertRaises(SystemExit):
-            i.do_EOF(None)
-
-    def test_do_create(self):
-        """ """
-        i = self.value()
+        copy = i.to_dict()
+        copy.update({1: 2})
         with self.assertRaises(TypeError):
-            i.do_create()
+            new = BaseModel(**copy)
 
-    def test_do_show(self):
+    def test_save(self):
+        """ Testing save """
+        i = self.value()
+        i.save()
+        key = self.name + "." + i.id
+        with open('file.json', 'r') as f:
+            j = json.load(f)
+            self.assertEqual(j[key], i.to_dict())
+
+    def test_str(self):
         """ """
         i = self.value()
-        with self.assertRaises(TypeError):
-            i.do_show()
+        self.assertEqual(str(i), '[{}] ({}) {}'.format(self.name, i.id,
+                         i.__dict__))
 
-    def test_do_destroy(self):
+    def test_todict(self):
         """ """
         i = self.value()
-        with self.assertRaises(TypeError):
-            i.do_destroy()
+        n = i.to_dict()
+        self.assertEqual(i.to_dict(), n)
 
-    def test_do_all(self):
+    def test_kwargs_none(self):
         """ """
-        i = self.value()
+        n = {None: None}
         with self.assertRaises(TypeError):
-            i.do_all()
+            new = self.value(**n)
 
-    def test_do_update(self):
+    def test_kwargs_one(self):
         """ """
-        i = self.value()
-        with self.assertRaises(TypeError):
-            i.do_update()
+        n = {'Name': 'test'}
+        with self.assertRaises(KeyError):
+            new = self.value(**n)
 
-    def test_do_count(self):
+    def test_id(self):
         """ """
-        i = self.value()
-        with self.assertRaises(TypeError):
-            i.do_count()
+        new = self.value()
+        self.assertEqual(type(new.id), str)
 
-    def test_do_create(self):
+    def test_created_at(self):
         """ """
-        i = self.value()
-        with self.assertRaises(TypeError):
-            i.do_create()
+        new = self.value()
+        self.assertEqual(type(new.created_at), datetime.datetime)
 
-    def test_do_show(self):
+    def test_updated_at(self):
         """ """
-        i = self.value()
-        with self.assertRaises(TypeError):
-            i.do_show()
-
-    def test_do_destroy(self):
-        """ """
-        i = self.value()
-        with self.assertRaises(TypeError):
-            i.do_destroy()
-
-    def test_do_all(self):
-        """ """
-        i = self.value()
-        with self.assertRaises(TypeError):
-            i.do_all()
-
-    def test_do_update(self):
-        """ """
-        i = self.value()
-        with self.assertRaises(TypeError):
-            i.do_update()
-
-    def test_do_count(self):
-        """ """
-        i = self.value()
-        with self.assertRaises(TypeError):
-            i.do_count()
+        new = self.value()
+        self.assertEqual(type(new.updated_at), datetime.datetime)
+        n = new.to_dict()
+        new = BaseModel(**n)
+        self.assertFalse(new.created_at == new.updated_at)
