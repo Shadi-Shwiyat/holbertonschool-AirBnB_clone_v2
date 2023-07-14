@@ -91,8 +91,8 @@ class DBStorage:
         self.__session = scoped_session(sessionmaker(bind=self.__engine,
                                                      expire_on_commit=False))
 
-    def close(self):
+    def close(self): # adding for task 7
         """
-        End attributes
+        End private attributes
         """
         self.__session.remove()
