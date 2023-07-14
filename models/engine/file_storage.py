@@ -70,7 +70,7 @@ class FileStorage:
             if value == obj:
                 del FileStorage.__objects[key]
 
-    def close(self): # added for task 7 on web_flask
+    def close(self):  # added for task 7 on web_flask
         """
         Calls the reload() method for de-serializing the JSON file to objects.
         """
