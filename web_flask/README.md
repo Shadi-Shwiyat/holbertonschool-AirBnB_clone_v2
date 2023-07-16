@@ -1,1 +1,1 @@
-Webflask solo project
+This directory holds the task for the Holberton Web Flask project
