@@ -1,10 +1,10 @@
 #!/usr/bin/python3
-""" Start a Flask web application """
+"""  Script that starts a Flask web application """
 
 from flask import Flask
 
 
-def StartFlask():
+def start_flask():
     """ Start a Flask web application """
     app = Flask(__name__)
 
@@ -17,4 +17,4 @@ def StartFlask():
 
 
 if __name__ == "__main__":
-    StartFlask()
+    start_flask()
