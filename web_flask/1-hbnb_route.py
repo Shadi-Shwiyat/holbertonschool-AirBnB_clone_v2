@@ -12,12 +12,12 @@ def start_flask():
     def hello():
         """ Display 'Hello HBNB!' """
         return 'Hello HBNB!'
-    
+
     @app.route('/hbnb', strict_slashes=False)
     def hbnb():
         """ Display "HBNB" """
         return 'HBNB'
-    
+
     app.run(host='0.0.0.0', port=5000)
 
 
