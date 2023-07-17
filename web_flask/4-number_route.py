@@ -37,7 +37,7 @@ def start_flask():
         if isinstance(int(n), int):
             return f'{n} is a number'
         else:
-            pass
+            return "404 - Not Found", 404
 
     app.run(host='0.0.0.0', port=5000)
 
