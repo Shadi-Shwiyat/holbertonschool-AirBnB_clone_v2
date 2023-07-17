@@ -34,9 +34,10 @@ def start_flask():
     @app.route('/number/<n>', strict_slashes=False)
     def is_number(n):
         """ Display "<n> is a number" if n is an int """
-        if isinstance(int(n), int):
+        try:
+            int(n)
             return f'{n} is a number'
-        else:
+        except ValueError:
             return "404 - Not Found", 404
 
     app.run(host='0.0.0.0', port=5000)
