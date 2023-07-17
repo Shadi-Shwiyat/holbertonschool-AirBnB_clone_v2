@@ -17,7 +17,7 @@ def start_flask():
     def hbnb():
         """ Display "HBNB" """
         return 'HBNB'
-    
+
     @app.route('/c/<text>', strict_slashes=False)
     def c(text):
         """ Display "C" followed by text variable """
