@@ -58,7 +58,8 @@ def start_flask():
                 even_odd = 'even'
             else:
                 even_odd = 'odd'
-            return render_template('6-number_odd_or_even.html', n=n, even_odd=even_odd)
+            return render_template('6-number_odd_or_even.html',
+                                    n=n, even_odd=even_odd)
         except ValueError:
             return "404 - Not Found", 404
 
